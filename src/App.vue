@@ -58,11 +58,9 @@
                                   <li class="hdr_menu_purchaseSumCal">
                                       {{purchaseSumCalc}}
                                   </li>
-
                             </ul>
                   </div>
               </nav>
-
           </div>
 
 
