@@ -5,8 +5,7 @@
 
    <div class="body">
 
-       <Home/>
-
+       <Login/>
    </div>
 
    <div class="footer">
@@ -18,8 +17,8 @@
 
 <script>
 import Nav from './components/Nav.vue'
-import Home from './components/Home.vue'
 import Login from './components/Login.vue'
+import Home from './components/Home.vue'
 
 export default {
   name: 'App',
@@ -39,7 +38,8 @@ export default {
       return sum + '₽'
     }
   }
-}</script>
+}
+</script>
 
 <style>
 #app {
@@ -62,7 +62,8 @@ div
 
 /******************************************************************************/
 .body {
-  background: ;
+    min-height:80vh;
+    background: ;
 }
 
 /******************************************************************************/

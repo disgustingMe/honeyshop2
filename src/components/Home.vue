@@ -1,18 +1,7 @@
 <template lang="html">
     <div class="main">
-        Home
-        Home
-        Home
-        Home
-        Home
-        Home
-        Home
-        Home
-        Home
-        Home
-        Home
-        Home
-        Home 
+        Home Home Home Home Home Home Home Home Home Home Home Home Home Home Home Home Home Home Home Home Home Home
+
     </div>
 </template>
 
@@ -27,7 +16,7 @@ export default {
     {
         width:100%;
         padding:12% 5%;
-        height:20vh;
+        min-height:40vh;
         font-size: 2em;
         background: ;
     }
