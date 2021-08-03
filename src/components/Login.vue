@@ -8,18 +8,28 @@
 
               <div class="form-group">
                 <label for="name">Ваше имя</label>
-                <input v-model="formReg.name" type="text" class="form-control" id="name" placeholder="Имя">
+                <input @blur="$v.formReg.name.$touch()"
+                :class="{'is-invalid requiredField': $v.formReg.name.$error}" v-model="formReg.name" type="text" class="form-control" id="name" placeholder="Имя">
+                <div class="error" v-if="!$v.formReg.name.required">Введите Ваше имя</div>
+                <div class="error" v-if="!$v.formReg.name.minLength">Длина Вашего имени должна быть не менее {{ $v.formReg.name.$params.minLength.min }}</div>
+                <div class="error" v-if="!$v.formReg.name.alpha">В имени должны содержаться только буквы</div>
               </div>
 
               <div class="form-group">
                 <label for="surname">Ваша фамилия</label>
-                <input v-model="formReg.surname" type="text" class="form-control" id="surname" placeholder="Фамилия">
+                <input @blur="$v.formReg.surname.$touch()"
+                :class="{'is-invalid requiredField': $v.formReg.surname.$error}" v-model="formReg.surname" type="text" class="form-control" id="surname" placeholder="Фамилия">
+                <div class="error" v-if="!$v.formReg.surname.minLength">Длина Вашей фамилии должна быть не менее {{ $v.formReg.surname.$params.minLength.min }}</div>
+                <div class="error" v-if="!$v.formReg.name.alpha">В фамилии должны содержаться только буквы</div>
               </div>
 
               <div class="form-group">
                 <label for="email">Ваш e-mail</label>
-                <input v-model="formReg.email" type="email" class="form-control" id="email" placeholder="E-mail">
-              </div>
+                <input  @blur="$v.formReg.email.$touch()"
+                :class="{'is-invalid requiredField': $v.formReg.email.$error}" v-model="formReg.email" type="email" class="form-control" id="email" placeholder="E-mail">
+                <div class="error" v-if="!$v.formReg.email.required">Введите ваш e-mail</div>
+                <div class="error" v-if="!$v.formReg.email.email">Поле e-mail заполнено неправильно</div>
+                  </div>
 
               <button @click="nextStep" type="button" class="btn btn-success">Следующий шаг</button>
             </div>
@@ -31,12 +41,17 @@
 
               <div class="form-group">
                 <label for="password">Пароль</label>
-                <input v-model="formReg.password" type="password" class="form-control" id="password" placeholder="Пароль">
+                <input  @blur="$v.formReg.password.$touch()"
+                :class="{'is-invalid requiredField': $v.formReg.password.$error}" v-model="formReg.password" type="password" class="form-control" id="password" placeholder="Пароль">
+                <div class="error" v-if="!$v.formReg.password.required">Необхоимо ввести пароль</div>
+                <div class="error" v-if="!$v.formReg.password.minLength">Длина пароля должна быть не менее {{ $v.formReg.password.$params.minLength.min }}</div>
               </div>
 
               <div class="form-group">
                 <label for="passwordConf">Подтверждение пароля</label>
-                <input v-model="formReg.passwordConf" type="password" class="form-control" id="passwordConf" placeholder="Пароль">
+                <input @blur="$v.formReg.passwordConf.$touch()"
+                :class="{'is-invalid requiredField': $v.formReg.passwordConf.$error}" v-model="formReg.passwordConf" type="password" class="form-control" id="passwordConf" placeholder="Пароль">
+                <div class="error" v-if="!$v.formReg.passwordConf.sameAsPassword">Пароли не идентичны</div>
               </div>
               <div class="buttons">
 
@@ -62,6 +77,12 @@
 
                 <button @click="backStep" type="button" class="btn btn-light">Назад</button>
                 <button type="submit" class="btn btn-success">Завершить регистрацию</button>
+                <p class="error typo__p" v-if="submitStatus === 'OK'">Регистрация прошла успешно</p>
+                <p class="error typo__p" v-if="submitStatus === 'ERROR'">Заполните все формы корректно</p>
+                <p class="error typo__p" v-if="submitStatus === 'PENDING'">Обработка запроса</p>
+                <div class="">
+
+                </div>
               </div>
             </div>
           </transition>
@@ -72,69 +93,109 @@
 </template>
 
 <script>
+import { required, minLength, sameAs, email, helpers} from 'vuelidate/lib/validators'
+const alpha = helpers.regex('alpha', /^[a-zA-Zа-яёА-ЯЁ]*$/)
 export default {
     name: 'Login',
-    data()
-    {
+      data() {
         return {
-                step: 1,
-                formReg:
-                {
-                     name: '',
-                     surame: '',
-                     email: '',
-                     password: '',
-                     passwordConf: '',
-                     region: '',
-                     city: ''
-                }
+          step: 1,
+          formReg: {
+            name: '',
+            surname: '',
+            email: '',
+            password: '',
+            passwordConf: '',
+            region: '',
+            city: ''
+        },
+         submitStatus: null
         }
-    },
-    methods:
-    {
-        nextStep()
-        {
-            let step = this.step;
-            if (step < 3)
-            {
-                this.step++
-            }
+      },
+      methods: {
+        nextStep() {
+          let step = this.step;
+          if (step < 3) {
+            this.step++
+          }
 
         },
-        backStep()
-        {
-            let step = this.step;
-            if (step > 1)
-            {
-                this.step--
-            }
+        backStep() {
+          let step = this.step;
+          if (step > 1) {
+            this.step--
+          }
         },
-        registerUser()
-        {
-            console.log('Registration successfull')
+        registerUser() {
+
+          this.$v.$touch()
+          if (this.$v.$invalid) {
+            this.submitStatus = 'ERROR'
+             console.log('error!')
+          } else {
+
+            this.submitStatus = 'PENDING'
+            setTimeout(() => {
+              this.submitStatus = 'OK'
+               console.log('timeout!')
+           }, 1000)
+           console.log(this.submitStatus)
+          }
+
         }
+        },
+      validations: {
+        formReg: {
+          name: {
+            required,
+            alpha,
+            minLength: minLength(2)
+          },
+          surname: {
+            minLength: minLength(2)
+          },
+          email: {
+            required,
+            email
+          },
+          password: {
+            required,
+            minLength: minLength(4)
+          },
+          passwordConf: {
+              sameAsPassword: sameAs('password')
+          }
+        }
+      }
     }
-}
 </script>
 
 <style lang="css">
-    .main
-    {
-        width:100%;
-        padding:12% 5%;
-        font-size: 1.2em;
+    .main {
+      width: 100%;
+      padding: 15% 5%;
+      font-size: 1.2em;
     }
-    .buttons
-    {
-        display: block;
+
+    .buttons {
+      display: block;
     }
 
     .slide-fade-enter-active {
-  transition: all 0.43s ease;
-}
+      transition: all 0.43s ease;
+    }
 
-.slide-fade-enter {
-    transform: translateX(103px);
-    opacity: 0;
-}
+    .slide-fade-enter {
+      transform: translateX(103px);
+      opacity: 0;
+    }
+    .requiredField
+    {
+        background-color: #ffdde3;
+    }
+    .error
+    {
+        padding:2%;
+        font-size: 0.7em !important;
+    }
 </style>
