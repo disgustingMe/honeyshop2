@@ -31,7 +31,11 @@
                 <div class="error" v-if="!$v.formReg.email.email">Поле e-mail заполнено неправильно</div>
                   </div>
 
-              <button @click="nextStep" type="button" class="btn btn-success">Следующий шаг</button>
+              <button @click="nextStep"
+                      :disabled="checkStep1()"
+                      type="button" class="btn btn-success">
+                Следующий шаг
+              </button>
             </div>
           </transition>
           <transition name="slide-fade">
@@ -56,7 +60,9 @@
               <div class="buttons">
 
                 <button @click="backStep" type="button" class="btn btn-light">Назад</button>
-                <button @click="nextStep" type="button" class="btn btn-success">Следующий шаг</button>
+                <button @click="nextStep"
+                         :disabled="checkStep2()"
+                        type="button" class="btn btn-success">Следующий шаг</button>
               </div>
             </div>
           </transition>
@@ -76,13 +82,11 @@
               <div class="buttons">
 
                 <button @click="backStep" type="button" class="btn btn-light">Назад</button>
-                <button type="submit" class="btn btn-success">Завершить регистрацию</button>
-                <p class="error typo__p" v-if="submitStatus === 'OK'">Регистрация прошла успешно</p>
-                <p class="error typo__p" v-if="submitStatus === 'ERROR'">Заполните все формы корректно</p>
-                <p class="error typo__p" v-if="submitStatus === 'PENDING'">Обработка запроса</p>
-                <div class="">
+                <button type="submit"
+                        class="btn btn-success"
+                         :disabled="checkStep3()">Завершить регистрацию</button>
 
-                </div>
+
               </div>
             </div>
           </transition>
@@ -93,81 +97,105 @@
 </template>
 
 <script>
-import { required, minLength, sameAs, email, helpers} from 'vuelidate/lib/validators'
+import {
+  required,
+  minLength,
+  sameAs,
+  email,
+  helpers
+} from 'vuelidate/lib/validators'
 const alpha = helpers.regex('alpha', /^[a-zA-Zа-яёА-ЯЁ]*$/)
 export default {
-    name: 'Login',
-      data() {
-        return {
-          step: 1,
-          formReg: {
-            name: '',
-            surname: '',
-            email: '',
-            password: '',
-            passwordConf: '',
-            region: '',
-            city: ''
-        },
-         submitStatus: null
-        }
+  name: 'Login',
+  data() {
+    return {
+      step: 1,
+      formReg: {
+        name: '',
+        surname: '',
+        email: '',
+        password: '',
+        passwordConf: '',
+        region: '',
+        city: ''
       },
-      methods: {
-        nextStep() {
-          let step = this.step;
-          if (step < 3) {
-            this.step++
-          }
+      submitStatus: null
+    }
+  },
+  methods: {
 
-        },
-        backStep() {
-          let step = this.step;
-          if (step > 1) {
-            this.step--
-          }
-        },
-        registerUser() {
+    checkStep1() {
+      return this.$v.formReg.name.$invalid ||
+        this.$v.formReg.surname.$invalid ||
+        this.$v.formReg.email.$invalid
+    },
+    checkStep2() {
+      return this.$v.formReg.password.$invalid ||
+        this.$v.formReg.passwordConf.$invalid
+    },
+    checkStep3() {
+      return this.$v.formReg.name.$invalid ||
+        this.$v.formReg.surname.$invalid ||
+        this.$v.formReg.email.$invalid ||
+        this.$v.formReg.password.$invalid ||
+        this.$v.formReg.passwordConf.$invalid
+},
+    nextStep() {
+      let step = this.step;
+      if (step < 3) this.step++
+    },
+    backStep() {
+      let step = this.step;
+      if (step > 1) this.step--
+    },
+    registerUser() {
 
-          this.$v.$touch()
-          if (this.$v.$invalid) {
-            this.submitStatus = 'ERROR'
-             console.log('error!')
-          } else {
+      this.$v.$touch()
+      if (this.$v.$invalid) {
+        this.submitStatus = 'ERROR'
 
-            this.submitStatus = 'PENDING'
-            setTimeout(() => {
-              this.submitStatus = 'OK'
-               console.log('timeout!')
-           }, 1000)
-           console.log(this.submitStatus)
-          }
+      } else {
 
-        }
-        },
-      validations: {
-        formReg: {
-          name: {
-            required,
-            alpha,
-            minLength: minLength(2)
-          },
-          surname: {
-            minLength: minLength(2)
-          },
-          email: {
-            required,
-            email
-          },
-          password: {
-            required,
-            minLength: minLength(4)
-          },
-          passwordConf: {
-              sameAsPassword: sameAs('password')
-          }
-        }
+        this.submitStatus = 'PENDING'
+        setTimeout(() => {
+          this.submitStatus = 'OK'
+          this.formReg.name = ''
+
+
+            for (let input in this.formReg) {
+                this.formReg[input] = ''
+            }
+            this.$v.$reset()
+            this.step = 1
+        }, 2000)
+      }
+    },
+  },
+
+  validations: {
+    formReg: {
+      name: {
+        required,
+        alpha,
+        minLength: minLength(2)
+      },
+      surname: {
+        minLength: minLength(2)
+      },
+      email: {
+        required,
+        email
+      },
+      password: {
+        required,
+        minLength: minLength(4)
+      },
+      passwordConf: {
+        sameAsPassword: sameAs('password')
       }
     }
+  }
+}
 </script>
 
 <style lang="css">

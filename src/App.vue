@@ -5,7 +5,6 @@
 
    <div class="body">
 
-       <Login/>
    </div>
 
    <div class="footer">
@@ -17,7 +16,7 @@
 
 <script>
 import Nav from './components/Nav.vue'
-import Login from './components/Login.vue'
+import Register from './components/Register.vue'
 import Home from './components/Home.vue'
 
 export default {
@@ -25,7 +24,7 @@ export default {
   components: {
     Nav,
     Home,
-    Login
+    Register
   },
   data() {
     return {
